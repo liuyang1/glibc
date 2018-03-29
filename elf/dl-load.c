@@ -618,7 +618,7 @@ cache_rpath (struct link_map *l,
 
 
 void
-_dl_init_paths (const char *llp)
+_dl_init_paths (const char *llp) // passed with getenv("LD_LIBRARY_PATH")
 {
   size_t idx;
   const char *strp;
@@ -696,6 +696,7 @@ _dl_init_paths (const char *llp)
     {
       assert (l->l_type != lt_loaded);
 
+      // load RPATH, RUNPATH
       if (l->l_info[DT_RUNPATH])
 	{
 	  /* Allocate room for the search path and fill in information
@@ -1944,7 +1945,7 @@ _dl_map_object (struct link_map *loader, const char *name,
 	  struct link_map *main_map = GL(dl_ns)[LM_ID_BASE]._ns_loaded;
 	  bool did_main_map = false;
 
-	  /* First try the DT_RPATH of the dependent object that caused NAME
+	  /* XXX 1st. try the DT_RPATH of the dependent object that caused NAME
 	     to be loaded.  Then that object's dependent, and on up.  */
 	  for (l = loader; l; l = l->l_loader)
 	    if (cache_rpath (l, &l->l_rpath_dirs, DT_RPATH, "RPATH"))
@@ -1971,14 +1972,14 @@ _dl_map_object (struct link_map *loader, const char *name,
 			    &found_other_class);
 	}
 
-      /* Try the LD_LIBRARY_PATH environment variable.  */
+      /* XXX 2nd. Try the LD_LIBRARY_PATH environment variable.  */
       if (fd == -1 && env_path_list.dirs != (void *) -1)
 	fd = open_path (name, namelen, mode, &env_path_list,
 			&realname, &fb,
 			loader ?: GL(dl_ns)[LM_ID_BASE]._ns_loaded,
 			LA_SER_LIBPATH, &found_other_class);
 
-      /* Look at the RUNPATH information for this binary.  */
+      /* XXX 3rd. Look at the RUNPATH information for this binary.  */
       if (fd == -1 && loader != NULL
 	  && cache_rpath (loader, &loader->l_runpath_dirs,
 			  DT_RUNPATH, "RUNPATH"))
@@ -2006,7 +2007,7 @@ _dl_map_object (struct link_map *loader, const char *name,
 	      || ! __libc_enable_secure)
 	  && __glibc_likely (GLRO(dl_inhibit_cache) == 0))
 	{
-	  /* Check the list of libraries in the file /etc/ld.so.cache,
+	  /* XXX 4th. Check the list of libraries in the file /etc/ld.so.cache,
 	     for compatibility with Linux's ldconfig program.  */
 	  char *cached = _dl_load_cache_lookup (name);
 
@@ -2058,7 +2059,7 @@ _dl_map_object (struct link_map *loader, const char *name,
 	}
 #endif
 
-      /* Finally, try the default path.  */
+      /* XXX Finally, try the default path.  */
       if (fd == -1
 	  && ((l = loader ?: GL(dl_ns)[nsid]._ns_loaded) == NULL
 	      || __glibc_likely (!(l->l_flags_1 & DF_1_NODEFLIB)))
