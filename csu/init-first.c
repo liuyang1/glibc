@@ -71,7 +71,7 @@ _init (int argc, char **argv, char **envp)
 #ifndef SHARED
   /* First the initialization which normally would be done by the
      dynamic linker.  */
-  _dl_non_dynamic_init ();
+  _dl_non_dynamic_init (); // init DL part
 #endif
 
 #ifdef VDSO_SETUP

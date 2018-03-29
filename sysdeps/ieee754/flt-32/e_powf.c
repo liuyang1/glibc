@@ -216,6 +216,8 @@ __powf (float x, float y)
     }
   return (float) exp2_inline (ylogx, sign_bias);
 }
+// let powf symbol direct to __powf function since Glibc 2.27 version
+// example of versioned_symbol
 #ifndef __powf
 strong_alias (__powf, __ieee754_powf)
 strong_alias (__powf, __powf_finite)

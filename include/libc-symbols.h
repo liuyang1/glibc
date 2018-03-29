@@ -325,6 +325,7 @@ for linking")
    past the last element in SET.  */
 #define symbol_set_end_p(set, ptr) ((ptr) >= (void *const *) &__stop_##set)
 
+/* Using symbol verisong (GCC extension) to contorl ABI compliance */
 /* Use symbol_version_reference to specify the version a symbol
    reference should link to.  Use symbol_version or
    default_symbol_version for the definition of a versioned symbol.
